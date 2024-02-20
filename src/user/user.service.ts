@@ -39,11 +39,23 @@ export class UserService {
     }
   }
 
-  async validateUser({ username }: { username: string }) {
+  async validateUser({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) {
     const user = await this.prismaService.user.findUnique({
-      where: { username },
+      where: {
+        username,
+      },
     });
-    if (!user) return null;
+    const decryptedPassword = await this.encryptionService.decrypt(
+      user.password,
+    );
+
+    if (!user || decryptedPassword !== password) return null;
 
     delete user.password;
 
