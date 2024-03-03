@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -21,6 +23,31 @@ export class WordsController {
     return this.wordsService.findAll(req?.user);
   }
 
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @Req() req: RequestWithUser,
+    @Body() wordsPayloadDto: WordsPayloadDto,
+  ) {
+    return this.wordsService.create(req?.user, wordsPayloadDto);
+  }
+
+  @Put(':wordId')
+  @UseGuards(JwtAuthGuard)
+  async change(
+    @Req() req: RequestWithUser,
+    @Body() wordsPayloadDto: WordsPayloadDto,
+    @Param('wordId') wordId: string,
+  ) {
+    return this.wordsService.change(req?.user, wordsPayloadDto, wordId);
+  }
+
+  @Delete(':wordId')
+  @UseGuards(JwtAuthGuard)
+  async delete(@Req() req: RequestWithUser, @Param('wordId') wordId: string) {
+    return this.wordsService.delete(req?.user, wordId);
+  }
+
   @Get('letters')
   @UseGuards(JwtAuthGuard)
   async getLetters(@Req() req: RequestWithUser) {
@@ -34,14 +61,5 @@ export class WordsController {
     @Param('letter') letter: string,
   ) {
     return this.wordsService.getWordsByLetter(req?.user, letter);
-  }
-
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  async create(
-    @Req() req: RequestWithUser,
-    @Body() wordsPayloadDto: WordsPayloadDto,
-  ) {
-    return this.wordsService.create(req?.user, wordsPayloadDto);
   }
 }

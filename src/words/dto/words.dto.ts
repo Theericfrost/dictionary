@@ -10,7 +10,6 @@ export class WordsPayloadDto {
 
 export class UserGuardPayload {
   id: string;
-  username: string;
 }
 
 export class RequestWithUser extends Request {

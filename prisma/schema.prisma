@@ -15,13 +15,17 @@ model User {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   username String @unique
   password String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   words Word[]
 }
 
 model Word {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
   label String
   translation String
-  userName String
-  user User @relation(fields: [userName], references: [username])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id])
+  userId String @db.ObjectId
 }

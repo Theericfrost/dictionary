@@ -5,11 +5,46 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class WordsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll({ username }) {
+  async findAll({ id }) {
     const result = await this.prisma.word.findMany({
       where: {
-        userName: username,
+        userId: id,
       },
+    });
+
+    return result;
+  }
+
+  async create({ id }, data) {
+    const label = data?.label?.toLowerCase();
+    const word = await this.prisma.word.findFirst({
+      where: { userId: id, label },
+    });
+
+    if (!word) {
+      const result = await this.prisma.word.create({
+        data: { ...data, label, userId: id },
+      });
+
+      return result;
+    } else {
+      throw new HttpException('Already exists', HttpStatus.FORBIDDEN);
+    }
+  }
+
+  async change({ id }, data, wordId) {
+    const label = data?.label?.toLowerCase();
+    const result = await this.prisma.word.update({
+      where: { id: wordId, userId: id },
+      data: { translation: data.translation, label, userId: id },
+    });
+
+    return result;
+  }
+
+  async delete({ id }, wordId) {
+    const result = await this.prisma.word.delete({
+      where: { id: wordId, userId: id },
     });
 
     return result;
@@ -27,29 +62,14 @@ export class WordsService {
     return Array.from(letters);
   }
 
-  async getWordsByLetter({ username }, letter) {
+  async getWordsByLetter({ id }, letter) {
     const result = await this.prisma.word.findMany({
       where: {
-        userName: username,
+        userId: id,
         label: { startsWith: letter },
       },
     });
 
     return result;
-  }
-
-  async create({ username }, data) {
-    const word = await this.prisma.word.findFirst({
-      where: { userName: username, label: data?.label },
-    });
-    if (!word) {
-      const result = await this.prisma.word.create({
-        data: { ...data, label: data?.label.toLowerCase(), userName: username },
-      });
-
-      return result;
-    } else {
-      throw new HttpException('Already exists', HttpStatus.FORBIDDEN);
-    }
   }
 }
